@@ -4,14 +4,14 @@ const cors = require('cors');
 require('dotenv').config();
 
 const tutorRoutes = require('./routes/tutorRoutes');
-const authRoutes = require('./routes/authRoutes'); // 🆕 Add this line
+const authRoutes = require('./routes/authRoutes'); 
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use('/api/tutors', tutorRoutes);
-app.use('/api/auth', authRoutes); // 🆕 Add this line
+app.use('/api/auth', authRoutes);
 
 // Test route (optional)
 app.get('/', (req, res) => res.send("API running"));
