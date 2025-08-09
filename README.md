@@ -1,4 +1,4 @@
-# 🎓 Tuition Matching Platform
+# 🎓 TeachConnect (Tuition Matching Platform )
 
 A MERN stack web application that connects **school students / guardians** with **university student tutors** based on class, subject, and location preferences.  
 The platform supports **role-based access**, **document verification**, and a structured **job posting & application workflow**.
