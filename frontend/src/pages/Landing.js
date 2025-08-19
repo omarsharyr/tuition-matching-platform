@@ -1,67 +1,63 @@
-import React, { useState } from "react";
+// src/pages/Landing.js
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./Landing.css";
-
-import studentImg from "../assets/Student.jpg"; 
-import tutorImg from "../assets/Teacher1.jpg";      
-
-function RoleCard({ title, subtitle, selected, onClick, type, imgSrc }) {
-  return (
-    <button
-      type="button"
-      className={`rolecard ${selected ? "rolecard--selected" : ""}`}
-      onClick={onClick}
-      aria-pressed={!!selected}
-      aria-label={`Select ${type}`}
-    >
-      <div className="rolecard__avatar">
-        <img src={imgSrc} alt={`${title} avatar`} />
-      </div>
-      <div className="rolecard__text">
-        <div className="rolecard__title">{title}</div>
-        <div className="rolecard__subtitle">{subtitle}</div>
-      </div>
-      {selected && <span className="rolecard__check" aria-hidden="true">✓</span>}
-    </button>
-  );
-}
+import "../styles/Landing.css";
 
 export default function Landing() {
-  const [selected, setSelected] = useState(null);
-  const navigate = useNavigate();
+  const nav = useNavigate();
 
-  const handleSelect = (role) => {
-    setSelected(role);
-    if (role === "student") navigate("/student/login");
-    if (role === "tutor") navigate("/tutor/login");
+  // Change to "/student/register" and "/tutor/register" if you want register-first
+  const TARGETS = {
+    student: "/student/login",
+    tutor: "/tutor/login",
   };
 
+  const go = (role) => nav(TARGETS[role]);
+
   return (
-    <main className="landingV2">
-      <div className="landingV2__wrap">
-        <h1 className="landingV2__title"><span className="black-text">Welcome to</span> TeachConnect</h1>
+    <div className="landing">
+      <header className="landing-header">
+        <h1>Tuition Matching Platform</h1>
+      </header>
 
-        <p className="landingV2__subtitle">Sign In to Continue</p>
+      <main className="landing-main">
+        <div className="landing-container">
+          <h2 className="landing-title">Choose your role</h2>
+          <p className="landing-subtitle">
+            Continue as a Student/Guardian or as a Tutor.
+          </p>
 
-        <div className="landingV2__cards">
-          <RoleCard
-            type="student or guardian"
-            title="Guardian or Student"
-            subtitle="Select, if you're looking for a tutor"
-            selected={selected === "student"}
-            onClick={() => handleSelect("student")}
-            imgSrc={studentImg}
-          />
-          <RoleCard
-            type="tutor"
-            title="Tutor"
-            subtitle="Select, if you're looking for tuition job"
-            selected={selected === "tutor"}
-            onClick={() => handleSelect("tutor")}
-            imgSrc={tutorImg}
-          />
+          <div className="landing-cards">
+            <button
+              className="landing-card"
+              onClick={() => go("student")}
+              aria-label="Continue as Student or Guardian"
+            >
+              <div className="landing-badge">Student / Guardian</div>
+              <div className="landing-card-title">Find a Tutor</div>
+              <div className="landing-card-desc">
+                Post your tuition needs and review applicants.
+              </div>
+            </button>
+
+            <button
+              className="landing-card"
+              onClick={() => go("tutor")}
+              aria-label="Continue as Tutor"
+            >
+              <div className="landing-badge">Tutor</div>
+              <div className="landing-card-title">Find Tuition Jobs</div>
+              <div className="landing-card-desc">
+                Browse matching posts and apply quickly.
+              </div>
+            </button>
+          </div>
+
+          <p className="landing-hint">
+            You’ll choose <b>login or register</b> on the next page.
+          </p>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import "../styles/DashboardPlaceholder.css";
 
 export default function DashboardPlaceholder() {
   return (

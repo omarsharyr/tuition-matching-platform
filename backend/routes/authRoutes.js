@@ -1,20 +1,19 @@
+// backend/routes/authRoutes.js
 const express = require("express");
-const {
-  registerUser,
-  loginUser,
-  getProfile,
-  updateProfile
-} = require("../controllers/authController");
-
-const { protect } = require("../middleware/authMiddleware");
+const { registerUser, loginUser } = require("../controllers/authController");
+const { upload } = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
+router.post(
+  "/register",
+  upload.fields([
+    { name: "studentId", maxCount: 1 },
+    { name: "educationDocument", maxCount: 1 },
+  ]),
+  registerUser
+);
 
-// ✅ New: Profile routes
-router.get("/profile", protect, getProfile);
-router.put("/profile", protect, updateProfile);
+router.post("/login", loginUser);
 
 module.exports = router;

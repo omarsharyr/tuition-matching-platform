@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../utils/api";
 import { useNavigate, Link } from "react-router-dom";
+import "../styles/LoginTutor.css";
 
 export default function LoginTutor() {
   const navigate = useNavigate();
@@ -21,15 +22,15 @@ export default function LoginTutor() {
     setLoading(true);
 
     try {
-      const res = await axios.post("/api/auth/login", {
+      const res = await api.post("/api/auth/login", {
         email: form.email.trim(),
         password: form.password
-      }, { headers: { "Content-Type": "application/json" } });
+      });
 
       const { token, user } = res.data;
 
       // Fetch full profile to check verification status
-      const me = await axios.get("api/auth/profile", {
+      const me = await api.get("/api/auth/profile", {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -41,22 +42,17 @@ export default function LoginTutor() {
       // Gate by role and verification
       if (user.role !== "tutor") {
         setErrMsg("This login is for Tutor accounts only.");
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("authUser");
-        localStorage.removeItem("authProfile");
+        localStorage.clear();
         return;
       }
 
       if (!me.data.isVerified) {
-        setInfoMsg("Your account is pending admin verification. You’ll get access once approved.");
-        // Keep token so they don’t have to log in again later if you prefer.
-        // Or remove token to force fresh login post‑verification:
-        // localStorage.removeItem("authToken");
+        setInfoMsg("Your account is pending admin verification. You'll get access once approved.");
         return;
       }
 
       // Success → go to dashboard
-      navigate("/dashboard"); // or "/tutor/dashboard"
+      navigate("/dashboard");
     } catch (err) {
       const msg = err?.response?.data?.message || "Login failed. Check your credentials.";
       setErrMsg(msg);
@@ -66,52 +62,61 @@ export default function LoginTutor() {
   };
 
   return (
-    <div style={{ maxWidth: 420, margin: "40px auto", padding: "16px" }}>
-      <h2 style={{ marginBottom: 8 }}>Tutor Login</h2>
-      <p style={{ color: "#666", marginBottom: 16 }}>
-        Log in to browse tuition posts and apply (after admin verification).
-      </p>
+    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
+      <h2>Tutor Login</h2>
+      <p>Log in to browse tuition posts and apply (after admin verification).</p>
+      
+      {errMsg && (
+        <div style={{ color: 'red', marginBottom: '10px' }}>{errMsg}</div>
+      )}
+      {infoMsg && (
+        <div style={{ color: 'orange', marginBottom: '10px' }}>{infoMsg}</div>
+      )}
 
-      {errMsg ? (
-        <div style={{ background: "#fee", color: "#900", padding: 10, borderRadius: 8, marginBottom: 12 }}>
-          {errMsg}
+      <form onSubmit={onSubmit}>
+        <div style={{ marginBottom: '15px' }}>
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={onChange}
+            required
+            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+          />
         </div>
-      ) : null}
-
-      {infoMsg ? (
-        <div style={{ background: "#eef6ff", color: "#174ea6", padding: 10, borderRadius: 8, marginBottom: 12 }}>
-          {infoMsg}
+        
+        <div style={{ marginBottom: '15px' }}>
+          <label>Password:</label>
+          <input
+            type="password"
+            name="password"
+            value={form.password}
+            onChange={onChange}
+            required
+            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+          />
         </div>
-      ) : null}
-
-      <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email address"
-          value={form.email}
-          onChange={onChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={onChange}
-          required
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Signing in..." : "Login"}
+        
+        <button 
+          type="submit" 
+          disabled={loading}
+          style={{ 
+            width: '100%', 
+            padding: '10px', 
+            backgroundColor: '#007bff', 
+            color: 'white', 
+            border: 'none', 
+            cursor: 'pointer' 
+          }}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
-
-      <div style={{ marginTop: 12 }}>
-        Don’t have an account? <Link to="/tutor/register">Register as Tutor</Link>
-      </div>
-      <div style={{ marginTop: 6 }}>
-        Are you a Student/Guardian? <Link to="/student/login">Login here</Link>
-      </div>
+      
+      <p style={{ textAlign: 'center', marginTop: '20px' }}>
+        Don't have an account? <Link to="/tutor/register">Register here</Link>
+      </p>
     </div>
   );
 }

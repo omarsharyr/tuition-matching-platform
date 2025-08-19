@@ -1,0 +1,95 @@
+/* src/styles/PrivateRoute.css */
+.verification-pending {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.verification-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.verification-icon {
+  font-size: 4rem;
+  color: #f6ad55;
+  margin-bottom: 1.5rem;
+}
+
+.verification-title {
+  color: #333;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.verification-message {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.verification-steps {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.verification-steps h3 {
+  color: #333;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.verification-steps ol {
+  color: #666;
+  padding-left: 1.2rem;
+}
+
+.verification-steps li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #8b4513;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(252, 182, 159, 0.3);
+}
+
+@media (max-width: 480px) {
+  .verification-card {
+    padding: 2rem 1.5rem;
+  }
+  
+  .verification-title {
+    font-size: 1.7rem;
+  }
+  
+  .verification-icon {
+    font-size: 3rem;
+  }
+}
