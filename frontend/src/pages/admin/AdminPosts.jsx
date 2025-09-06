@@ -1,37 +1,69 @@
+import React, { useEffect, useState } from "react";
 import api from "../../utils/api";
-import { useEffect, useState } from "react";
 
 export default function AdminPosts() {
-  const [posts, setPosts] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [busyId, setBusyId] = useState(null);
+  const [err, setErr] = useState("");
 
-  const load = () => api.get("/student/posts/browse").then(r => setPosts(r.data));
+  const load = async () => {
+    setErr("");
+    try {
+      // Expecting an admin endpoint; adjust if yours differs:
+      const { data } = await api.get("/admin/posts");
+      setRows(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setErr(e?.response?.data?.message || "Failed to load posts.");
+    }
+  };
+
   useEffect(() => { load(); }, []);
 
-  const del = (id) =>
-    window.confirm("Delete post and all related applications?")
-      && api.delete(`/admin/posts/${id}`).then(load);
+  const remove = async (id) => {
+    try {
+      setBusyId(id);
+      await api.delete(`/admin/posts/${id}`);
+      await load();
+    } catch (e) {
+      setErr(e?.response?.data?.message || "Failed to delete post.");
+    } finally {
+      setBusyId(null);
+    }
+  };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-3">Manage Tuition Posts</h2>
-      <table className="w-full text-sm bg-white border border-gray-100 rounded-2xl overflow-hidden">
-        <thead className="text-left text-gray-500">
-          <tr><th className="p-3">Post</th><th className="p-3">Location</th><th className="p-3">Payment</th><th className="p-3">Actions</th></tr>
-        </thead>
-        <tbody>
-          {posts.map(p => (
-            <tr key={p._id} className="border-t">
-              <td className="p-3">{p.classLevel} • {p.subjects?.join(", ")}</td>
-              <td className="p-3">{p.location}</td>
-              <td className="p-3">{p.payment} BDT</td>
-              <td className="p-3">
-                <button onClick={() => del(p._id)} className="h-8 px-3 rounded-xl border text-xs text-red-600">Delete</button>
-              </td>
+      <h2 className="ad-title">Posts</h2>
+      <p className="ad-sub">Manage all tuition posts.</p>
+
+      {err && <div className="ad-card" style={{borderColor:"#fecaca", color:"#991b1b"}}>{err}</div>}
+
+      <div className="ad-card">
+        <table className="ad-table">
+          <thead>
+            <tr>
+              <th>Title</th><th>Subject</th><th>City/Area</th><th>By</th><th>Action</th>
             </tr>
-          ))}
-          {!posts.length && <tr><td className="p-3 text-gray-500" colSpan={4}>No posts.</td></tr>}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr><td colSpan="5" style={{padding:"16px", color:"#6b7280"}}>No posts.</td></tr>
+            ) : rows.map(p => (
+              <tr key={p._id}>
+                <td>{p.title || p.subject || "—"}</td>
+                <td>{p.subject || "—"}</td>
+                <td>{[p.city, p.area].filter(Boolean).join(", ") || "—"}</td>
+                <td>{p?.student?.name || p?.studentName || "—"}</td>
+                <td>
+                  <button className="ad-btn danger" disabled={busyId===p._id} onClick={() => remove(p._id)}>
+                    {busyId===p._id ? "..." : "Delete"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

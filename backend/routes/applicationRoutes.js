@@ -1,20 +1,34 @@
-// backend/routes/applicationRoutes.js
-import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
-import {
-  applyToPost, tutorApplications, applicationsForPost, shortlist, select, reject,
+import { Router } from "express";
+import { 
+  applyToPost, 
+  tutorApplications, 
+  applicationsForPost, 
+  shortlist, 
+  reject, 
+  select 
 } from "../controllers/applicationController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
-const router = express.Router();
+const router = Router();
 
-// tutor
-router.post("/", protect, applyToPost);
-router.get("/my", protect, tutorApplications);
+// Apply middleware to all routes
+router.use(protect);
 
-// student
-router.get("/post/:postId", protect, applicationsForPost);
-router.patch("/:id/shortlist", protect, shortlist);
-router.patch("/:id/select", protect, select);
-router.patch("/:id/reject", protect, reject);
+// Apply to a post (tutors)
+router.post("/apply", applyToPost);
+
+// Get tutor's applications
+router.get("/tutor/applications", tutorApplications);
+
+// Get applications for a specific post (students)
+router.get("/posts/:postId/applications", applicationsForPost);
+
+// Student actions on applications
+router.patch("/:id/shortlist", shortlist);
+router.patch("/:id/reject", reject);
+router.patch("/:id/select", select);
+
+// Test endpoint
+router.get("/ping", (_req, res) => res.json({ ok: true }));
 
 export default router;

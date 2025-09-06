@@ -1,28 +1,56 @@
-import { Link, useLocation } from "react-router-dom";
+import React from "react";
+import { NavLink } from "react-router-dom";
+import "../styles/DashboardLayout.css";
 
-export default function Sidebar({ brand = "Tuition Match", items = [], footer }) {
-  const { pathname } = useLocation();
+const linksByRole = {
+  student: [
+    { to: "/student/dashboard", label: "Overview" },
+    { to: "/student/jobs", label: "My Jobs" },
+    { to: "/student/post", label: "Post Job" },
+    { to: "/student/applications", label: "Applications" },
+    { to: "/chat", label: "Chat" },
+    { to: "/student/reviews", label: "Reviews" },
+    { to: "/profile", label: "Profile" },
+  ],
+  tutor: [
+    { to: "/tutor/dashboard", label: "Overview" },
+    { to: "/tutor/jobs", label: "Job Board" },
+    { to: "/tutor/applications", label: "My Applications" },
+    { to: "/chat", label: "Chat" },
+    { to: "/profile", label: "Profile" },
+  ],
+  admin: [
+    { to: "/dashboard/admin", label: "Overview" },
+    { to: "/admin/verification", label: "Verification" },
+    { to: "/admin/users", label: "Users" },
+    { to: "/admin/jobs", label: "Jobs" },
+    { to: "/admin/applications", label: "Applications" },
+    { to: "/admin/reviews", label: "Reviews" },
+    { to: "/admin/analytics", label: "Analytics" },
+    { to: "/admin/settings", label: "Settings" },
+  ],
+};
 
+export default function Sidebar({ role = "tutor" }) {
+  const links = linksByRole[role] || linksByRole.tutor;
   return (
-    <aside className="w-64 bg-white border-r border-gray-100 h-screen sticky top-0 flex flex-col">
-      <div className="px-5 py-4 border-b font-semibold">{brand}</div>
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {items.map(({ label, to, icon: Icon }) => {
-          const active = pathname === to;
-          return (
-            <Link
-              key={to}
-              to={to}
-              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition
-                ${active ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-100"}`}
-            >
-              {Icon ? <Icon size={18} /> : null}
-              <span>{label}</span>
-            </Link>
-          );
-        })}
+    <aside className="dash-sidebar" aria-label="Sidebar">
+      <nav>
+        <ul className="dash-side-list">
+          {links.map((l) => (
+            <li key={l.to}>
+              <NavLink
+                to={l.to}
+                className={({ isActive }) =>
+                  "dash-side-link" + (isActive ? " is-active" : "")
+                }
+              >
+                {l.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
       </nav>
-      {footer}
     </aside>
   );
 }

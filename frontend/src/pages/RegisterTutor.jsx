@@ -1,7 +1,7 @@
-// src/pages/RegisterTutor.jsx
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../utils/api";
+import Navbar from "../components/Navbar";
 import FileUpload from "../components/FileUpload";
 import "../styles/RegisterTutor.css";
 
@@ -15,11 +15,12 @@ export default function RegisterTutor() {
     phone: "",
     password: "",
     confirmPassword: "",
+    gender: "",
   });
 
-  // Files
+  // Files: studentId = single File, educationDocuments = File[]
   const [studentId, setStudentId] = useState(null);
-  const [educationDocument, setEducationDocument] = useState(null);
+  const [educationDocuments, setEducationDocuments] = useState([]);
 
   // UI
   const [loading, setLoading] = useState(false);
@@ -36,31 +37,66 @@ export default function RegisterTutor() {
     setErrMsg("");
     setSuccessMsg("");
 
+    // basic validations
     if (form.password !== form.confirmPassword) {
       return setErrMsg("Passwords do not match.");
     }
-    if (!studentId) return setErrMsg("Please upload your Student ID (or equivalent).");
-    if (!educationDocument) return setErrMsg("Please upload your Education Document.");
+    if (!form.gender) {
+      return setErrMsg("Please select a gender.");
+    }
+    if (!studentId) return setErrMsg("Please upload your Student ID (required).");
+    if (!educationDocuments.length) {
+      return setErrMsg("Please upload at least one Education Document.");
+    }
 
-    setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append("name", form.name);
-      fd.append("email", form.email);
-      fd.append("phone", form.phone);
-      fd.append("password", form.password);
-      fd.append("role", "tutor");
-      fd.append("studentId", studentId);
-      fd.append("educationDocument", educationDocument);
+      setLoading(true);
 
-      await axios.post("/api/auth/register", fd, {
+      // Build multipart body compatible with backend multer.fields([
+      //   { name: 'studentId', maxCount: 1 },
+      //   { name: 'educationDocument', maxCount: 10 }
+      // ])
+      const fd = new FormData();
+      fd.append("name", form.name.trim());
+      fd.append("email", form.email.trim());
+      fd.append("phone", form.phone.trim());
+      fd.append("password", form.password);
+      fd.append("gender", form.gender);
+      fd.append("role", "tutor"); // <<< IMPORTANT
+
+      // Single Student ID
+      fd.append("studentId", studentId);
+
+      // Multiple Education Documents (same field repeated)
+      educationDocuments.forEach((file) => {
+        fd.append("educationDocument", file);
+      });
+
+      // POST to /api/auth/register via axios instance
+      await api.post("/auth/register", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       setSuccessMsg("Registration successful! Please wait for admin verification.");
+      // Optional: clear inputs (FileUpload handles its own state; no need to force reset)
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setStudentId(null);
+      setEducationDocuments([]);
+
+      // Redirect to tutor login
       setTimeout(() => navigate("/tutor/login"), 1500);
     } catch (err) {
-      const msg = err?.response?.data?.message || "Registration failed.";
+      // capture backend message (e.g., enum validation, missing files, duplicate email)
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Registration failed.";
       setErrMsg(msg);
     } finally {
       setLoading(false);
@@ -68,14 +104,16 @@ export default function RegisterTutor() {
   };
 
   return (
-    <div className="rt-wrapper">
-      <div className="rt-card">
-        <header className="rt-header">
-          <h2 className="rt-title">Tutor Registration</h2>
-          <p className="rt-subtitle">
-            Create an account to browse tuition posts and apply to teach. Admin verification is required before login.
-          </p>
-        </header>
+    <>
+      <Navbar showAuthButtons={false} />
+      <div className="rt-wrapper">
+        <div className="rt-card">
+          <header className="rt-header">
+            <h2 className="rt-title">Tutor Registration</h2>
+            <p className="rt-subtitle">
+              Create an account to browse tuition posts and apply to teach. Admin verification is required before login.
+            </p>
+          </header>
 
         {errMsg ? <div className="rt-alert rt-alert-error">{errMsg}</div> : null}
         {successMsg ? <div className="rt-alert rt-alert-success">{successMsg}</div> : null}
@@ -125,6 +163,23 @@ export default function RegisterTutor() {
             </div>
 
             <div className="rt-field">
+              <label htmlFor="gender" className="rt-label">Gender</label>
+              <select
+                id="gender"
+                name="gender"
+                className="rt-input"
+                value={form.gender}
+                onChange={onChange}
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div className="rt-field">
               <label htmlFor="password" className="rt-label">Password</label>
               <input
                 id="password"
@@ -158,26 +213,28 @@ export default function RegisterTutor() {
           <div className="rt-divider" />
 
           <div className="rt-upload">
+            {/* Student ID: single */}
             <div className="rt-field">
               <label className="rt-label">Student ID or Equivalent Credential</label>
               <FileUpload
-                onFileSelect={(files) => setStudentId(files?.[0] || null)}
-                accept=".pdf,.jpg,.jpeg,.png"
                 multiple={false}
+                accept=".pdf,.jpg,.jpeg,.png"
                 placeholder="Click to upload or drag & drop (PDF, JPG, PNG)"
+                onFileSelect={(files) => setStudentId(files?.[0] || null)}
               />
               <small className="rt-hint">Required for tutor verification</small>
             </div>
 
+            {/* Education Documents: multiple */}
             <div className="rt-field">
-              <label className="rt-label">Education Document</label>
+              <label className="rt-label">Education Document(s)</label>
               <FileUpload
-                onFileSelect={(files) => setEducationDocument(files?.[0] || null)}
+                multiple={true}
                 accept=".pdf,.jpg,.jpeg,.png"
-                multiple={false}
-                placeholder="Click to upload or drag & drop (PDF, JPG, PNG)"
+                placeholder="Click to upload or drag & drop multiple files (PDF, JPG, PNG)"
+                onFileSelect={(files) => setEducationDocuments(files || [])}
               />
-              <small className="rt-hint">Certificate or transcript</small>
+              <small className="rt-hint">Upload one or more certificates/transcripts</small>
             </div>
           </div>
 
@@ -192,5 +249,6 @@ export default function RegisterTutor() {
         </form>
       </div>
     </div>
+    </>
   );
 }

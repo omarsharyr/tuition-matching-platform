@@ -1,22 +1,28 @@
 // backend/models/Application.js
 import mongoose from "mongoose";
 
-const applicationSchema = new mongoose.Schema(
+const ApplicationSchema = new mongoose.Schema(
   {
-    post: { type: mongoose.Schema.Types.ObjectId, ref: "TuitionPost", required: true, index: true },
-    tutor: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    pitch: String,
-    status: {
-      type: String,
-      enum: ["PENDING", "SHORTLISTED", "SELECTED_BY_STUDENT", "REJECTED"],
-      default: "PENDING",
-      index: true,
+    post: { type: mongoose.Schema.Types.ObjectId, ref: "TuitionPost", required: true },
+    tutor: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    pitch: { type: String, default: "" }, // tutor's pitch/message
+    proposedRate: { type: Number }, // tutor's proposed rate
+    availability: [{ type: String }], // available time slots
+    status: { 
+      type: String, 
+      enum: ["submitted", "shortlisted", "accepted", "rejected", "withdrawn"], 
+      default: "submitted" 
     },
+    shortlistedAt: { type: Date },
+    responseMessage: { type: String }, // student's response message
   },
   { timestamps: true }
 );
 
-// prevent duplicate applications by same tutor for same post
-applicationSchema.index({ post: 1, tutor: 1 }, { unique: true });
+// prevent duplicate apply per tutor+post
+ApplicationSchema.index({ post: 1, tutor: 1 }, { unique: true });
+ApplicationSchema.index({ tutor: 1, status: 1 });
+ApplicationSchema.index({ post: 1, status: 1 });
 
-export default mongoose.model("Application", applicationSchema);
+const Application = mongoose.model("Application", ApplicationSchema);
+export default Application;

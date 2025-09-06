@@ -1,0 +1,272 @@
+/* frontend/src/components/ChatWindow.css */
+.chat-window-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.chat-window {
+  width: 90%;
+  max-width: 600px;
+  height: 80vh;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-info h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.chat-subtitle {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.separator {
+  margin: 0 0.5rem;
+}
+
+.chat-expiry {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.expired {
+  color: #ff4757;
+  font-weight: 600;
+}
+
+.time-remaining {
+  color: #ffa502;
+  font-weight: 500;
+}
+
+.close-chat-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.close-chat-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background-color: #f8f9fa;
+}
+
+.no-messages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.welcome-message {
+  text-align: center;
+  color: #666;
+  max-width: 300px;
+}
+
+.welcome-message h4 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-message p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.message {
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.message.own {
+  justify-content: flex-end;
+}
+
+.message.other {
+  justify-content: flex-start;
+}
+
+.message-content {
+  max-width: 70%;
+  padding: 0.75rem 1rem;
+  border-radius: 18px;
+  position: relative;
+}
+
+.message.own .message-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+.message.other .message-content {
+  background: white;
+  color: #333;
+  border: 1px solid #e1e8ed;
+  border-bottom-left-radius: 6px;
+}
+
+.message-content p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.timestamp {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.chat-input-area {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #e1e8ed;
+}
+
+.error-message {
+  background: #ff4757;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.expired-message {
+  background: #ffa502;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.message-form {
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.message-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e1e8ed;
+  border-radius: 25px;
+  outline: none;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.message-input:focus {
+  border-color: #667eea;
+}
+
+.message-input:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+
+.send-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.send-button:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .chat-window {
+    width: 95%;
+    height: 90vh;
+    margin: 2.5vh 2.5vw;
+  }
+  
+  .chat-header {
+    padding: 0.75rem;
+  }
+  
+  .chat-info h3 {
+    font-size: 1.1rem;
+  }
+  
+  .chat-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .message-content {
+    max-width: 85%;
+  }
+  
+  .chat-input-area {
+    padding: 0.75rem;
+  }
+}

@@ -1,40 +1,16 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const documentSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true
+const documentSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    type: { type: String, enum: ["STUDENT_ID", "EDU_DOC", "PARENT_NID"], required: true },
+    url: { type: String, required: true },
+    filename: { type: String, required: true },
+    mimetype: { type: String, required: true },
+    size: { type: Number, required: true },
   },
-  type: {
-    type: String,
-    enum: ["STUDENT_ID", "GUARDIAN_NID", "EDU_DOC"],
-    required: true
-  },
-  url: {
-    type: String,
-    required: true
-  },
-  filename: {
-    type: String,
-    required: true
-  },
-  mimetype: {
-    type: String,
-    required: true
-  },
-  size: {
-    type: Number,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ["PENDING", "APPROVED", "REJECTED"],
-    default: "PENDING"
-  }
-}, { timestamps: true });
+  { timestamps: true }
+);
 
-// Index for querying documents by user and status
-documentSchema.index({ userId: 1, status: 1 });
-
-module.exports = mongoose.model("Document", documentSchema);
+const Document = mongoose.model("Document", documentSchema);
+export default Document;

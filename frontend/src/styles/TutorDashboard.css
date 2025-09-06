@@ -1,0 +1,8 @@
+/* TutorDashboard.css — placeholder hooks for your Tutor pages */
+
+.td-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.td-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .td-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .td-stats { grid-template-columns: 1fr; } }
+
+.td-note { color: #6b7280; font-size: 13px; }

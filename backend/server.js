@@ -1,4 +1,3 @@
-// backend/server.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -8,20 +7,21 @@ import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
 import authRoutes from "./routes/authRoutes.js";
-import tutorRoutes from "./routes/tutorRoutes.js";
+import tutorRoutes from "./routes/tutorRoutes.js";            // placeholder ok
 import adminRoutes from "./routes/adminRoutes.js";
 
-import studentRoutes from "./routes/studentRoutes.js";         // NEW
-import applicationRoutes from "./routes/applicationRoutes.js"; // NEW
-import chatRoutes from "./routes/chatRoutes.js";               // NEW
+import studentRoutes from "./routes/studentRoutes.js";        // placeholder ok
+import applicationRoutes from "./routes/applicationRoutes.js";// placeholder ok
+import chatRoutes from "./routes/chatRoutes.js";              // placeholder ok
+import notificationRoutes from "./routes/notificationRoutes.js";
+import documentRoutes from "./routes/documentRoutes.js";
 
 import { notFound, errorHandler } from "./utils/errorHandler.js";
 
 dotenv.config();
-
 const app = express();
 
-// ----- Paths (so we can serve /uploads regardless of where server starts) -----
+// ----- Paths for static /uploads -----
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDir = path.join(__dirname, "..", "uploads");
@@ -30,26 +30,38 @@ const uploadsDir = path.join(__dirname, "..", "uploads");
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin: [FRONTEND_URL, "http://localhost:3001", "http://localhost:3000"],
     credentials: true,
   })
 );
 
-// ----- Body parsers -----
+// ----- Parsers -----
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 
-// ----- Static: serve uploaded files (Multer saves here) -----
+// ----- Request Logging -----
+app.use((req, res, next) => {
+  console.log(`📡 ${new Date().toISOString()} - ${req.method} ${req.path} - IP: ${req.ip}`);
+  next();
+});
+
+// ----- Static: uploaded files -----
 app.use("/uploads", express.static(uploadsDir));
 
 // ----- Routes -----
+app.get("/api/test", (req, res) => {
+  res.json({ message: "API is working!", timestamp: new Date() });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/tutor", tutorRoutes);
 app.use("/api/admin", adminRoutes);
 
-app.use("/api/student", studentRoutes);           // NEW
-app.use("/api/applications", applicationRoutes);  // NEW
-app.use("/api/chat", chatRoutes);                 // NEW
+app.use("/api/student", studentRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/documents", documentRoutes);
 
 // Health
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
@@ -60,12 +72,6 @@ app.use(errorHandler);
 
 // ----- DB + Start -----
 const port = process.env.PORT || 5000;
-
-// If your Node supports top‑level await, you can keep it simple:
-// await connectDB(process.env.MONGO_URI);
-// app.listen(port, () => console.log(`🚀 Server on :${port}`));
-
-// Otherwise, use an async IIFE to avoid top‑level await issues:
 (async () => {
   try {
     await connectDB(process.env.MONGO_URI);

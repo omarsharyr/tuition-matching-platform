@@ -2,29 +2,51 @@
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
-const uploadDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// Ensure uploads directory exists at project root: /uploads
+const uploadsRoot = path.join(__dirname, "..", "..", "uploads");
+if (!fs.existsSync(uploadsRoot)) {
+  fs.mkdirSync(uploadsRoot, { recursive: true });
+}
+
+// Storage
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ts = Date.now();
-    const ext = path.extname(file.originalname);
-    const base = path.basename(file.originalname, ext).replace(/\s+/g, "_");
-    cb(null, `${base}_${ts}${ext}`);
+  destination: function (req, file, cb) {
+    cb(null, uploadsRoot);
+  },
+  filename: function (req, file, cb) {
+    const safe = file.originalname.replace(/\s+/g, "_");
+    const stamp = Date.now();
+    cb(null, `${stamp}_${safe}`);
   },
 });
 
-function fileFilter(_req, file, cb) {
-  // Allow common doc/image types
-  const ok = /pdf|jpg|jpeg|png/i.test(path.extname(file.originalname));
-  if (!ok) return cb(new Error("Only PDF/JPG/PNG allowed"));
+// Basic type guard (pdf/images)
+const fileFilter = (req, file, cb) => {
+  const mimetype = (file.mimetype || "").toLowerCase();
+  const ok =
+    mimetype === "application/pdf" ||
+    mimetype.startsWith("image/");
+  if (!ok) return cb(new Error("Unsupported file type"), false);
   cb(null, true);
-}
+};
 
 export const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB per file
+  },
 });
+
+// Convenience field map used in authRoutes (register)
+export const registerUpload = upload.fields([
+  // Common names you use on the frontend for BOTH roles
+  { name: "studentId", maxCount: 1 },            // single
+  { name: "parentNid", maxCount: 1 },            // student only (single)
+  { name: "educationDocument", maxCount: 12 },   // multiple
+]);

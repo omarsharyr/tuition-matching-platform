@@ -12,3 +12,13 @@ export const clearUser = () => localStorage.removeItem("user");
 
 export const isVerified = () => getUser()?.status === "VERIFIED";
 export const hasRole = (role) => getUser()?.role === role;
+
+// Logout function
+export const logout = () => {
+  // Clear all authentication data from localStorage
+  clearToken();
+  clearUser();
+  
+  // Redirect to home page
+  window.location.href = "/";
+};

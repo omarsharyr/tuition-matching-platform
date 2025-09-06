@@ -1,12 +1,9 @@
-// backend/config/db.js
 import mongoose from "mongoose";
 
-export default async function connectDB(uri) {
-  try {
-    await mongoose.connect(uri, { dbName: "tuition_matching" });
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ Mongo connection error:", err.message);
-    process.exit(1);
-  }
-}
+const connectDB = async (uri) => {
+  if (!uri) throw new Error("MONGO_URI missing");
+  await mongoose.connect(uri, { maxPoolSize: 10 });
+  console.log("✅ Mongo connected");
+};
+
+export default connectDB;

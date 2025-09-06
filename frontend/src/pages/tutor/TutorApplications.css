@@ -1,0 +1,192 @@
+/* Tutor Applications Styles */
+
+.tutor-applications-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Mobile overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-overlay {
+    display: block;
+  }
+}
+
+.tutor-applications-main {
+  flex: 1;
+  margin-left: 280px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.tutor-applications-main.expanded {
+  margin-left: 80px;
+}
+
+@media (max-width: 768px) {
+  .tutor-applications-main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-header p {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.applications-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.application-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.application-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.application-header {
+  display: flex;
+  justify-content: between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.application-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-badge.status-submitted {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.status-shortlisted {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.status-accepted {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-rejected {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+.application-details {
+  margin-top: 1rem;
+}
+
+.application-description {
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+}
+
+.application-date {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
+
+.application-message {
+  background: #f8fafc;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  border-left: 3px solid #3b82f6;
+}
+
+.application-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.error-message {
+  background: #fecaca;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+}
+
+.empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  color: #64748b;
+  margin: 0;
+}

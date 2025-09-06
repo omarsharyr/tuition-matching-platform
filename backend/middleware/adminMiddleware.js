@@ -1,7 +1,11 @@
-// backend/middleware/adminMiddleware.js
-export const isAdmin = (req, res, next) => {
-  if (!req.user || req.user.role !== "ADMIN") {
-    return res.status(403).json({ message: "Admin access required" });
+import { protect } from "./authMiddleware.js";
+
+// Middleware to ensure the user has the 'admin' role
+const requireAdminRole = (req, res, next) => {
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ message: "Forbidden - Admin access required" });
   }
   next();
 };
+
+export { requireAdminRole };

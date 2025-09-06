@@ -1,19 +1,19 @@
 // backend/routes/authRoutes.js
-const express = require("express");
-const { registerUser, loginUser } = require("../controllers/authController");
-const { upload } = require("../middleware/uploadMiddleware");
+import { Router } from "express";
+import { registerUser, loginUser, getProfile, updateProfile } from "../controllers/authController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { registerUpload } from "../middleware/uploadMiddleware.js";
 
-const router = express.Router();
+const router = Router();
 
-router.post(
-  "/register",
-  upload.fields([
-    { name: "studentId", maxCount: 1 },
-    { name: "educationDocument", maxCount: 1 },
-  ]),
-  registerUser
-);
+// REGISTER (multipart) — accepts studentId, parentNid, educationDocument
+router.post("/register", registerUpload, registerUser);
 
+// LOGIN
 router.post("/login", loginUser);
 
-module.exports = router;
+// PROFILE (protected)
+router.get("/profile", protect, getProfile);
+router.put("/profile", protect, updateProfile);
+
+export default router;

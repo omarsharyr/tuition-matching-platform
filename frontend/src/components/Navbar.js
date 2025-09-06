@@ -1,52 +1,71 @@
-import "../styles/Navbar.css";import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './Navbar.css';
+// frontend/src/components/Navbar.js
+import React from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import "../styles/Navbar.css"; // ✅ correct single side-effect CSS import
 
-const Navbar = ({ user, onLogout }) => {
+export default function Navbar() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+
+  // read auth user (if you still want to conditionally show a Logout button)
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("authUser") || "null");
+  } catch {
+    user = null;
+  }
 
   const handleLogout = () => {
-    onLogout();
-    navigate('/');
+    localStorage.removeItem("token");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("authUser");
+    localStorage.removeItem("authProfile");
+    navigate("/", { replace: true });
   };
 
+  // minimal, clean navbar without Login/Register links
   return (
     <nav className="navbar">
       <div className="container">
-        <Link to="/" className="navbar-brand">
-          TuitionMatch
-        </Link>
-        
+        {/* Brand always routes home */}
+        <Link to="/" className="navbar-brand">Tuition Match</Link>
+
+        {/* Right side: optional role-aware shortcuts (no login/register here) */}
         <div className="nav-links">
-          {user ? (
-            <>
-              <Link to="/dashboard" className="nav-link">
-                Dashboard
-              </Link>
-              <button onClick={handleLogout} className="nav-link btn-link">
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login/student" className="nav-link">
-                Student Login
-              </Link>
-              <Link to="/login/tutor" className="nav-link">
-                Tutor Login
-              </Link>
-              <Link to="/register/student" className="nav-link">
-                Student Register
-              </Link>
-              <Link to="/register/tutor" className="nav-link">
-                Tutor Register
-              </Link>
-            </>
+          {/* Show role-aware Dashboard shortcut if logged in */}
+          {user?.role === "admin" && (
+            <Link
+              to="/dashboard/admin"
+              className={`nav-link ${pathname.startsWith("/dashboard/admin") ? "active" : ""}`}
+            >
+              Admin
+            </Link>
           )}
+          {user?.role === "student" && (
+            <Link
+              to="/student/dashboard"
+              className={`nav-link ${pathname.startsWith("/student") ? "active" : ""}`}
+            >
+              Student
+            </Link>
+          )}
+          {user?.role === "tutor" && (
+            <Link
+              to="/tutor/dashboard"
+              className={`nav-link ${pathname.startsWith("/tutor") ? "active" : ""}`}
+            >
+              Tutor
+            </Link>
+          )}
+
+          {/* Logout only when logged in */}
+          {user ? (
+            <button type="button" className="nav-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          ) : null}
         </div>
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}

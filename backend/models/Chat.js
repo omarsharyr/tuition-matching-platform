@@ -1,23 +1,35 @@
 // backend/models/Chat.js
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema(
+const ChatSchema = new mongoose.Schema(
   {
-    from: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    body: { type: String, required: true },
-    sentAt: { type: Date, default: Date.now },
-  },
-  { _id: false }
-);
-
-const chatSchema = new mongoose.Schema(
-  {
-    members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }],
-    application: { type: mongoose.Schema.Types.ObjectId, ref: "Application", required: true, unique: true },
-    locked: { type: Boolean, default: true },
-    messages: { type: [messageSchema], default: [] },
+    post: { type: mongoose.Schema.Types.ObjectId, ref: "TuitionPost", required: true },
+    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    tutor: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    chatType: {
+      type: String,
+      enum: ["interview", "full"],
+      default: "interview"
+    },
+    expiresAt: { type: Date }, // TTL for interview chats (7 days)
+    isActive: { type: Boolean, default: true },
+    lastMessage: {
+      text: String,
+      sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      createdAt: Date
+    },
+    // Chat participants info
+    participants: [{
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      lastSeenAt: { type: Date, default: Date.now },
+      unreadCount: { type: Number, default: 0 }
+    }]
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Chat", chatSchema);
+ChatSchema.index({ post: 1, student: 1, tutor: 1 }, { unique: true });
+ChatSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL for interview chats
+
+const Chat = mongoose.model("Chat", ChatSchema);
+export default Chat;

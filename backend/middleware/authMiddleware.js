@@ -1,33 +1,23 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-// Middleware to protect routes
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    
-    // Check for Bearer token
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Bearer "))
       return res.status(401).json({ message: "No token provided" });
-    }
-    
-    // Extract token
+
     const token = authHeader.split(" ")[1];
-    
-    // Verify token and decode
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Find user and attach to request
+
     const user = await User.findById(decoded.id).select("-password");
-    if (!user) {
-      return res.status(401).json({ message: "Invalid user" });
+    if (!user) return res.status(401).json({ message: "Invalid user" });
+
+    if (user.status !== "ACTIVE" && user.role !== "admin") {
+      // admins can be active regardless; others must be ACTIVE to use protected routes
+      // (you can loosen this if you want unverified users to hit some endpoints)
     }
-    
-    // Check if account is active
-    if (user.status !== "ACTIVE") {
-      return res.status(403).json({ message: "Account not active" });
-    }
-    
+
     req.user = user;
     next();
   } catch (err) {
@@ -36,22 +26,28 @@ const protect = async (req, res, next) => {
   }
 };
 
-// Middleware to require verified users
-const requireVerified = (req, res, next) => {
-  if (!req.user.isVerified) {
-    return res.status(403).json({ message: "Account pending verification" });
+export const requireVerified = (req, res, next) => {
+  // Admin always passes verification check
+  if (req.user?.role === "admin") {
+    return next();
   }
+  
+  // For students and tutors, check verification status
+  if (req.user?.verificationStatus !== "verified") {
+    return res.status(423).json({ 
+      message: "Account verification required to access this resource",
+      verificationStatus: req.user?.verificationStatus || "pending"
+    });
+  }
+  
   next();
 };
 
-// Middleware to require specific roles
-const requireRole = (...roles) => {
+export const requireRole = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user?.role)) {
       return res.status(403).json({ message: "Forbidden - insufficient permissions" });
     }
     next();
   };
 };
-
-module.exports = { protect, requireVerified, requireRole };

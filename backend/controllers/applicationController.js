@@ -31,7 +31,7 @@ export const shortlist = async (req, res) => {
   if (!app) return res.status(404).json({ message: "Not found" });
   if (String(app.post.student) !== String(req.user._id))
     return res.status(403).json({ message: "Not owner" });
-  app.status = "SHORTLISTED";
+  app.status = "shortlisted";
   await app.save();
   res.json(app);
 };
@@ -42,7 +42,7 @@ export const reject = async (req, res) => {
   if (!app) return res.status(404).json({ message: "Not found" });
   if (String(app.post.student) !== String(req.user._id))
     return res.status(403).json({ message: "Not owner" });
-  app.status = "REJECTED";
+  app.status = "rejected";
   await app.save();
   res.json(app);
 };
@@ -54,7 +54,7 @@ export const select = async (req, res) => {
   if (String(app.post.student) !== String(req.user._id))
     return res.status(403).json({ message: "Not owner" });
 
-  app.status = "SELECTED_BY_STUDENT";
+  app.status = "accepted";
   await app.save();
 
   // Open chat if not exists

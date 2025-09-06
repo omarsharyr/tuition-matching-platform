@@ -1,0 +1,135 @@
+/* Student Messages Styles */
+
+.messages-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.messages-content {
+  flex: 1;
+  padding: 2rem;
+  transition: margin-left 0.3s ease;
+}
+
+.messages-content.sidebar-open {
+  margin-left: 280px;
+}
+
+.messages-content.sidebar-closed {
+  margin-left: 80px;
+}
+
+.messages-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.sidebar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  color: #64748b;
+  transition: all 0.2s;
+  margin-bottom: 1rem;
+}
+
+.sidebar-toggle:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.coming-soon-card {
+  background: white;
+  border-radius: 2rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.coming-soon-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.coming-soon-card h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 1rem 0;
+}
+
+.coming-soon-card p {
+  font-size: 1rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.features-preview {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.feature-icon {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .messages-content.sidebar-open,
+  .messages-content.sidebar-closed {
+    margin-left: 0;
+  }
+  
+  .sidebar-toggle {
+    display: block;
+  }
+  
+  .messages-content {
+    padding: 1rem;
+  }
+  
+  .coming-soon-card {
+    padding: 3rem 1.5rem;
+  }
+  
+  .features-preview {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+}

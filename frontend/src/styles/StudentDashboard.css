@@ -1,0 +1,9 @@
+/* StudentDashboard.css — placeholder hooks for your Student pages */
+
+/* Safe, light utilities that match your existing light theme */
+.sd-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 900px) { .sd-kpi-row { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .sd-kpi-row { grid-template-columns: 1fr; } }
+
+.sd-muted { color: #6b7280; }
+.sd-actions { display: flex; gap: 8px; align-items: center; }

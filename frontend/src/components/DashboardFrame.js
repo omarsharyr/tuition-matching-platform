@@ -1,13 +1,22 @@
-export default function DashboardFrame({ sidebar, children, title }) {
+import React from "react";
+import Navbar from "./Navbar";            // ✅ component
+import Sidebar from "./Sidebar";          // ✅ component
+import NotificationCenter from "./NotificationCenter"; // ✅ component
+import "../styles/DashboardLayout.css";   // ✅ CSS (side-effect)
+
+export default function DashboardFrame({ role = "tutor", title = "", children }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="flex">
-        {sidebar}
-        <div className="flex-1 min-h-screen flex flex-col">
-          <header className="bg-white border-b border-gray-100 px-5 py-3">
-            <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
-          </header>
-          <main className="p-5">{children}</main>
+    <div className="dash-root">
+      <Navbar />
+      <div className="dash-main">
+        <Sidebar role={role} />
+        <main className="dash-content" role="main" aria-label={title || "Dashboard"}>
+          {title ? <h1 className="dash-title">{title}</h1> : null}
+          {children}
+        </main>
+        {/* Right-side notification center */}
+        <div className="notification-panel">
+          <NotificationCenter />
         </div>
       </div>
     </div>
