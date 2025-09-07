@@ -2,15 +2,19 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
-import { logout } from "../../utils/auth";
 import AdminSidebar from "../../components/AdminSidebar";
+import "../../styles/AdminLayout.css";
 import "./AdminDashboard-modern.css";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
   // Sidebar state
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
 
   // auth
   const user = useMemo(() => {
@@ -49,30 +53,60 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setErr(""); // Clear previous errors
       try {
+        console.log("AdminDashboard - Starting data fetch...");
+        
         const [metricsRes, queueRes] = await Promise.all([
-          api.get("/admin/dashboard/stats").catch(() => ({ data: null })),
-          api.get("/admin/verification-queue").catch(() => ({ data: [] })),
+          api.get("/admin/dashboard/stats").catch((error) => {
+            console.warn("Dashboard stats failed:", error.response?.status, error.response?.data?.message);
+            return { data: null };
+          }),
+          api.get("/admin/verification-queue").catch((error) => {
+            console.warn("Verification queue failed:", error.response?.status, error.response?.data?.message);
+            return { data: [] };
+          })
         ]);
 
         console.log("AdminDashboard - Metrics response:", metricsRes.data);
         console.log("AdminDashboard - Queue response:", queueRes.data);
 
-        if (metricsRes.data) setKpis(metricsRes.data);
+        // Handle dashboard stats
+        if (metricsRes.data && typeof metricsRes.data === 'object') {
+          setKpis(metricsRes.data);
+          console.log("AdminDashboard - KPIs updated:", metricsRes.data);
+        } else {
+          console.warn("AdminDashboard - Invalid metrics data, using defaults");
+        }
         
         // Process verification queue data - backend returns array of users
         if (queueRes.data && Array.isArray(queueRes.data)) {
-          const tutors = queueRes.data.filter(user => user.role === 'tutor');
-          const students = queueRes.data.filter(user => user.role === 'student');
-          console.log("AdminDashboard - Filtered tutors:", tutors.length);
-          console.log("AdminDashboard - Filtered students:", students.length);
+          const tutors = queueRes.data.filter(user => user.role === 'tutor' && user.verificationStatus === 'pending');
+          const students = queueRes.data.filter(user => user.role === 'student' && user.verificationStatus === 'pending');
+          
+          console.log("AdminDashboard - Filtered pending tutors:", tutors.length);
+          console.log("AdminDashboard - Filtered pending students:", students.length);
+          
           setPending({ tutors, students });
+          
+          // Update KPIs with actual pending count if not available from stats
+          if (!metricsRes.data?.pendingVerification) {
+            setKpis(prevKpis => ({
+              ...prevKpis,
+              pendingVerification: tutors.length + students.length
+            }));
+          }
+          
         } else {
-          console.log("AdminDashboard - Invalid queue data:", queueRes.data);
+          console.warn("AdminDashboard - Invalid queue data, clearing pending users");
+          setPending({ tutors: [], students: [] });
         }
+        
+        console.log("AdminDashboard - Data fetch completed successfully");
+        
       } catch (error) {
-        console.error("Dashboard fetch error:", error);
-        setErr("Failed to load dashboard data");
+        console.error("AdminDashboard - Fetch error:", error);
+        setErr(`Failed to load dashboard data: ${error.response?.data?.message || error.message}`);
       } finally {
         setLoading(false);
       }
@@ -81,21 +115,23 @@ export default function AdminDashboard() {
     fetchData();
     
     // Auto-refresh every 30 seconds to show new pending users
-    const interval = setInterval(fetchData, 30000);
+    const interval = setInterval(() => {
+      console.log("AdminDashboard - Auto-refresh triggered");
+      fetchData();
+    }, 30000);
     
-    return () => clearInterval(interval);
+    return () => {
+      console.log("AdminDashboard - Cleaning up auto-refresh interval");
+      clearInterval(interval);
+    };
   }, []);
-
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed(!isSidebarCollapsed);
-  };
 
   if (loading) {
     return (
-      <div className="admin-dashboard-container">
-        <AdminSidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
-        <div className={`admin-dashboard-main ${isSidebarCollapsed ? 'expanded' : ''}`}>
-          <div className="loading-container">
+      <div className="admin-layout">
+        <AdminSidebar isCollapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
+        <div className="admin-main">
+          <div className="loading-state">
             <div className="loading-spinner"></div>
             <p>Loading dashboard...</p>
           </div>
@@ -106,9 +142,9 @@ export default function AdminDashboard() {
 
   if (err) {
     return (
-      <div className="admin-dashboard-container">
-        <AdminSidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
-        <div className={`admin-dashboard-main ${isSidebarCollapsed ? 'expanded' : ''}`}>
+      <div className="admin-layout">
+        <AdminSidebar isCollapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
+        <div className="admin-main">
           <div className="error-container">
             <h2>Error Loading Dashboard</h2>
             <p>{err}</p>
@@ -122,15 +158,19 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="admin-dashboard-container">
-      <AdminSidebar isCollapsed={isSidebarCollapsed} toggleSidebar={toggleSidebar} />
+    <div className="admin-layout">
+      <AdminSidebar isCollapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
       
-      <div className={`admin-dashboard-main ${isSidebarCollapsed ? 'expanded' : ''}`}>
+      <div className="admin-main">
         {/* Header */}
-        <div className="dashboard-header">
-          <h1>🖥️ Admin Dashboard</h1>
-          <p>Platform overview, user management, and system administration</p>
+        <div className="admin-header">
+          <div className="header-left">
+            <h1 className="page-title">🖥️ Admin Dashboard</h1>
+            <p className="page-subtitle">Platform overview, user management, and system administration</p>
+          </div>
         </div>
+
+        <div className="main-content">
 
         {/* Quick Stats Grid */}
         <div className="stats-grid">
@@ -189,37 +229,137 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* URGENT: Pending Verifications Section */}
-        {(pending.tutors.length > 0 || pending.students.length > 0) && (
-          <div className="urgent-section">
-            <div className="urgent-header">
-              <h2 className="urgent-title">🚨 URGENT: Pending Verifications</h2>
-              <p className="urgent-subtitle">Users waiting for account approval</p>
-            </div>
-            <div className="urgent-grid">
-              {pending.tutors.length > 0 && (
-                <div className="urgent-card tutor-pending">
-                  <div className="urgent-icon">👨‍🏫</div>
-                  <div className="urgent-content">
-                    <div className="urgent-count">{pending.tutors.length}</div>
-                    <div className="urgent-label">Tutor{pending.tutors.length !== 1 ? 's' : ''} Waiting</div>
-                    <a href="/admin/verification" className="urgent-action">Review Now</a>
-                  </div>
-                </div>
-              )}
-              {pending.students.length > 0 && (
-                <div className="urgent-card student-pending">
-                  <div className="urgent-icon">🎓</div>
-                  <div className="urgent-content">
-                    <div className="urgent-count">{pending.students.length}</div>
-                    <div className="urgent-label">Student{pending.students.length !== 1 ? 's' : ''} Waiting</div>
-                    <a href="/admin/verification" className="urgent-action">Review Now</a>
-                  </div>
-                </div>
-              )}
+        {/* DEDICATED VERIFICATION QUEUE SECTION */}
+        <div className="verification-queue-section">
+          <div className="verification-header">
+            <h2 className="verification-title">📋 User Verification Queue</h2>
+            <div className="verification-controls">
+              <button 
+                onClick={() => window.location.reload()} 
+                className="refresh-btn"
+                title="Refresh verification queue"
+              >
+                🔄 Refresh
+              </button>
+              <span className="last-updated">
+                Auto-refresh: 30s • Last updated: {new Date().toLocaleTimeString()}
+              </span>
             </div>
           </div>
-        )}
+          
+          <div className="verification-content">
+            {loading ? (
+              <div className="verification-loading">
+                <div className="loading-spinner"></div>
+                <p>Loading verification queue...</p>
+              </div>
+            ) : (pending.tutors.length === 0 && pending.students.length === 0) ? (
+              <div className="verification-empty">
+                <div className="empty-icon">✅</div>
+                <h3>All Verifications Complete!</h3>
+                <p>No users currently pending verification</p>
+                <p className="debug-info">
+                  {process.env.NODE_ENV === 'development' && `Debug: Total KPI pending = ${kpis.pendingVerification || 0}`}
+                </p>
+              </div>
+            ) : (
+              <div className="verification-grid">
+                {/* Pending Tutors */}
+                {pending.tutors.length > 0 && (
+                  <div className="verification-card tutor-card">
+                    <div className="card-header">
+                      <div className="card-icon">👨‍🏫</div>
+                      <div className="card-title">
+                        <h3>Tutors Awaiting Verification</h3>
+                        <span className="card-count">{pending.tutors.length} pending</span>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      <div className="user-preview">
+                        {pending.tutors.slice(0, 3).map((tutor, index) => (
+                          <div key={tutor._id || index} className="user-item">
+                            <span className="user-name">{tutor.name || 'Unknown'}</span>
+                            <span className="user-email">{tutor.email}</span>
+                          </div>
+                        ))}
+                        {pending.tutors.length > 3 && (
+                          <div className="user-item more">
+                            +{pending.tutors.length - 3} more tutors
+                          </div>
+                        )}
+                      </div>
+                      <div className="card-actions">
+                        <a href="/admin/verification" className="review-btn primary">
+                          Review All Tutors
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pending Students */}
+                {pending.students.length > 0 && (
+                  <div className="verification-card student-card">
+                    <div className="card-header">
+                      <div className="card-icon">🎓</div>
+                      <div className="card-title">
+                        <h3>Students Awaiting Verification</h3>
+                        <span className="card-count">{pending.students.length} pending</span>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      <div className="user-preview">
+                        {pending.students.slice(0, 3).map((student, index) => (
+                          <div key={student._id || index} className="user-item">
+                            <span className="user-name">{student.name || 'Unknown'}</span>
+                            <span className="user-email">{student.email}</span>
+                          </div>
+                        ))}
+                        {pending.students.length > 3 && (
+                          <div className="user-item more">
+                            +{pending.students.length - 3} more students
+                          </div>
+                        )}
+                      </div>
+                      <div className="card-actions">
+                        <a href="/admin/verification" className="review-btn primary">
+                          Review All Students
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Debug Information */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="debug-panel">
+                <h4>🔍 Debug Information</h4>
+                <div className="debug-grid">
+                  <div className="debug-item">
+                    <strong>API Status:</strong> {err ? `Error: ${err}` : 'OK'}
+                  </div>
+                  <div className="debug-item">
+                    <strong>Pending Tutors:</strong> {pending.tutors.length}
+                  </div>
+                  <div className="debug-item">
+                    <strong>Pending Students:</strong> {pending.students.length}
+                  </div>
+                  <div className="debug-item">
+                    <strong>Total KPI:</strong> {kpis.pendingVerification || 0}
+                  </div>
+                  <div className="debug-item">
+                    <strong>Loading:</strong> {loading ? 'Yes' : 'No'}
+                  </div>
+                  <div className="debug-item">
+                    <strong>Last Refresh:</strong> {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Quick Actions */}
         <div className="quick-actions">
@@ -323,6 +463,7 @@ export default function AdminDashboard() {
               )}
             </ul>
           </div>
+        </div>
         </div>
       </div>
     </div>
