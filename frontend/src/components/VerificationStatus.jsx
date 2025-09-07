@@ -158,7 +158,7 @@ export default function VerificationStatus({ compact = false }) {
                   </span>
                   {doc.url && (
                     <a 
-                      href={doc.url} 
+                      href={`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${doc.url}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="btn ghost"
