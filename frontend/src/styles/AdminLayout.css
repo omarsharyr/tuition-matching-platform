@@ -1,0 +1,252 @@
+/* Global Admin Layout - Responsive Design */
+
+/* Base Admin Layout */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Sidebar Styles */
+.admin-sidebar {
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  z-index: 100;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+}
+
+/* Main Content Area */
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Prevent flex item overflow */
+  background: #ffffff;
+  overflow-x: hidden;
+}
+
+/* Content Container */
+.admin-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow flex item to shrink */
+}
+
+/* Header Styles */
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  min-height: 80px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  background: #fafbfc;
+}
+
+/* Loading States */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  .admin-header {
+    padding: 20px 24px;
+  }
+  
+  .main-content {
+    padding: 20px 24px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  .admin-layout {
+    position: relative;
+  }
+
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .admin-sidebar.expanded {
+    transform: translateX(0);
+  }
+
+  .admin-main {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .admin-header {
+    padding: 16px 20px;
+    position: relative;
+    z-index: 50;
+  }
+
+  .main-content {
+    padding: 16px 20px;
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+
+  /* Mobile overlay for sidebar */
+  .admin-layout::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .admin-layout.sidebar-open::before {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media (max-width: 480px) {
+  .admin-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .main-content {
+    padding: 12px 16px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .header-right {
+    align-self: stretch;
+    justify-content: flex-end;
+  }
+}
+
+/* High DPI / Retina Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  .admin-sidebar {
+    border-right-width: 0.5px;
+  }
+  
+  .admin-header {
+    border-bottom-width: 0.5px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .admin-sidebar {
+    display: none;
+  }
+  
+  .admin-main {
+    width: 100% !important;
+  }
+  
+  .admin-header {
+    border-bottom: 1px solid #000;
+    padding: 12px 0;
+  }
+}
+
+/* Focus Styles for Accessibility */
+.admin-layout :focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .admin-sidebar,
+  .loading-spinner {
+    transition: none;
+    animation: none;
+  }
+}
