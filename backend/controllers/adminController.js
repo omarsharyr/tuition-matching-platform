@@ -338,3 +338,26 @@ export const listApplications = async (_req, res) => {
     return res.status(500).json({ message: err.message || "Failed to load applications" });
   }
 };
+
+// Delete application (admin only)
+export const deleteApplicationAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Find the application
+    const application = await Application.findById(id);
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+    
+    // Delete the application
+    await Application.findByIdAndDelete(id);
+    
+    console.log(`🗑️ Admin deleted application ${id}`);
+    
+    res.json({ message: "Application deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting application:", error);
+    res.status(500).json({ message: error.message || "Failed to delete application" });
+  }
+};
