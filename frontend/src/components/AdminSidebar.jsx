@@ -1,14 +1,31 @@
-// frontend/src/components/AdminSidebar.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import './AdminSidebar.css';
 
-const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
+const AdminSidebar = ({ isCollapsed, toggleSidebar, className = '' }) => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/');
+  };
+
+  const handleNavClick = () => {
+    // Close sidebar on mobile after navigation
+    if (isMobile && !isCollapsed) {
+      toggleSidebar();
+    }
   };
 
   const sidebarItems = [
@@ -73,20 +90,21 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
   ];
 
   return (
-    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : 'expanded'}`}>
+    <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : 'expanded'} ${className}`}>
       {/* Header */}
       <div className="sidebar-header">
         <div className="sidebar-brand">
           <span className="brand-icon">🖥️</span>
-          {!isCollapsed && <span className="brand-text">Admin Panel</span>}
+          {(!isCollapsed || isMobile) && <span className="brand-text">Admin Panel</span>}
         </div>
         <div className="header-actions">
           <button 
             className="sidebar-toggle"
             onClick={toggleSidebar}
             title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            {isCollapsed ? '→' : '←'}
+            {isCollapsed ? (isMobile ? '☰' : '→') : (isMobile ? '✕' : '←')}
           </button>
         </div>
       </div>
@@ -101,16 +119,17 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
                 className={({ isActive }) => 
                   `nav-link ${isActive ? 'active' : ''}`
                 }
-                title={isCollapsed ? item.label : ''}
+                title={isCollapsed && !isMobile ? item.label : ''}
+                onClick={handleNavClick}
               >
                 <span className="nav-icon">{item.icon}</span>
-                {!isCollapsed && (
+                {(!isCollapsed || isMobile) && (
                   <div className="nav-content">
                     <span className="nav-label">{item.label}</span>
                     <span className="nav-description">{item.description}</span>
                   </div>
                 )}
-                {!isCollapsed && item.badge && (
+                {(!isCollapsed || isMobile) && item.badge && (
                   <span className="nav-badge">{item.badge}</span>
                 )}
               </NavLink>
