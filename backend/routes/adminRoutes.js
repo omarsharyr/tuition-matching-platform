@@ -3,7 +3,7 @@ import { Router } from "express";
 import { protect, requireRole } from "../middleware/authMiddleware.js";
 import {
   getVerificationQueue, verifyUser, rejectUser, getDashboardStats, getAllUsers, deleteUser,
-  listPosts, deletePostAdmin, listApplications, cleanupApplicationConflicts
+  listPosts, deletePostAdmin, listApplications, deleteApplicationAdmin, cleanupApplicationConflicts
 } from "../controllers/adminController.js";
 
 const router = Router();
@@ -28,6 +28,7 @@ router.get("/users/pending", getVerificationQueue); // alias
 router.get("/posts", listPosts);
 router.delete("/posts/:id", deletePostAdmin);
 router.get("/applications", listApplications);
+router.delete("/applications/:id", deleteApplicationAdmin);
 
 // Database cleanup (for fixing application conflicts)
 router.post("/cleanup/applications", cleanupApplicationConflicts);
