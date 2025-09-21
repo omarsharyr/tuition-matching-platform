@@ -96,8 +96,10 @@ export default function TutorDashboard() {
         hiredJobs: hiredJobs || statsRes.data?.hiredJobs || 0
       });
 
-      setRecentJobs(jobs);
-      setMyApplications(applications);
+      // setRecentJobs(jobs);
+      // setMyApplications(applications);
+      console.log("Recent jobs:", jobs);
+      console.log("My applications:", applications);
 
     } catch (error) {
       console.error("❌ Tutor dashboard fetch error:", error);
@@ -110,8 +112,8 @@ export default function TutorDashboard() {
         shortlistedJobs: 0,
         hiredJobs: 0
       });
-      setRecentJobs([]);
-      setMyApplications([]);
+      // setRecentJobs([]);
+      // setMyApplications([]);
       setActivityFeed([]);
     } finally {
       setLoading(false);

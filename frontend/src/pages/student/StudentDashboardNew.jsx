@@ -63,7 +63,8 @@ export default function StudentDashboardNew() {
       // Fetch job recommendations (optional)
       try {
         const recsRes = await api.get("/student/recommendations?limit=6");
-        setRecommendations(recsRes.data?.recommendations || []);
+        // setRecommendations(recsRes.data?.recommendations || []);
+        console.log("Recommendations loaded:", recsRes.data?.recommendations || []);
       } catch (err) {
         // Recommendations are optional, don't fail the whole dashboard
         console.log("Recommendations not available:", err.message);
