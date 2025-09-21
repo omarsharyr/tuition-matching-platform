@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
-import { logout } from "../../utils/auth";
 import StudentSidebar from "../../components/StudentSidebar";
 import PostWizard from "../../components/PostWizard/PostWizard";
 import ChatButton from "../../components/ChatButton";
@@ -36,7 +35,7 @@ export default function StudentDashboardNew() {
   });
   
   const [activityFeed, setActivityFeed] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
+  const [recommendations] = useState([]);
 
   // Load dashboard data
   useEffect(() => {

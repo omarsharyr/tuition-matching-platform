@@ -1,5 +1,5 @@
 // frontend/src/pages/student/StudentProfile.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import StudentSidebar from '../../components/StudentSidebar';
 import useSidebar from '../../hooks/useSidebar';
 import api from '../../utils/api';
@@ -84,7 +84,7 @@ const StudentProfile = () => {
   // Load profile data
   useEffect(() => {
     loadProfile();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadProfile = async () => {
     try {

@@ -24,8 +24,8 @@ export default function TutorDashboard() {
   });
   
   const [activityFeed, setActivityFeed] = useState([]);
-  const [recentJobs, setRecentJobs] = useState([]);
-  const [myApplications, setMyApplications] = useState([]);
+  const [recentJobs] = useState([]);
+  const [myApplications] = useState([]);
 
   // auth
   const user = useMemo(() => {

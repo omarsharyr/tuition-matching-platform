@@ -1,7 +1,7 @@
 // frontend/src/pages/admin/AdminAnalytics.jsx
 import React, { useState, useEffect } from 'react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   LineChart, Line, PieChart, Pie, Cell, AreaChart, Area,
   ResponsiveContainer
 } from 'recharts';
@@ -12,7 +12,7 @@ const AdminAnalytics = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [dateRange, setDateRange] = useState('7d');
   const [loading, setLoading] = useState(true);
-  const [analytics, setAnalytics] = useState({
+  const [analytics] = useState({
     overview: {
       totalUsers: 1247,
       activeUsers: 892,

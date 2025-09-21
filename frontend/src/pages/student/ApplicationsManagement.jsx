@@ -96,7 +96,7 @@ const ApplicationsManagement = () => {
       const endpoint = `/student/applications/${applicationId}/${action}`;
       const payload = reason ? { reason } : {};
       
-      const response = await api.post(endpoint, payload);
+      await api.post(endpoint, payload);
       
       const actionMessages = {
         shortlist: 'Application shortlisted successfully',

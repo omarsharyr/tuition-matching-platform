@@ -1,6 +1,5 @@
 // Public job browser for testing (no authentication required)
 import React, { useEffect, useState } from "react";
-import api from "../utils/api";
 import "./PublicJobBrowser.css";
 
 export default function PublicJobBrowser() {
