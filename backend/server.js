@@ -28,23 +28,29 @@ const uploadsDir = path.join(__dirname, "..", "uploads");
 
 // ----- CORS -----
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+
+// Production-ready CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    const allowedOrigins = [
-      FRONTEND_URL,
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://your-app-name.vercel.app" // Update this with your actual Vercel URL
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Allow localhost for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
     }
+    
+    // Allow vercel.app domains for production
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Allow specific frontend URL from environment
+    if (origin === FRONTEND_URL) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
