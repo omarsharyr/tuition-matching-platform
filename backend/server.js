@@ -28,12 +28,30 @@ const uploadsDir = path.join(__dirname, "..", "uploads");
 
 // ----- CORS -----
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-app.use(
-  cors({
-    origin: [FRONTEND_URL, "http://localhost:3001", "http://localhost:3000"],
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      FRONTEND_URL,
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "https://your-app-name.vercel.app" // Update this with your actual Vercel URL
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 
 // ----- Parsers -----
 app.use(express.json({ limit: "2mb" }));
